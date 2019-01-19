@@ -18,8 +18,24 @@ after_success:
   - docker build -t terdia07/multi-worker ./worker
 
 #login to docker cli and push images to hub
-  - echo "$DOCKER_PASSWORD" | docker login -u "terdia07" --password-stdin
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
   - docker push terdia07/multi-client
   - docker push terdia07/multi-nginx
   - docker push terdia07/multi-server
   - docker push terdia07/multi-worker
+
+deploy:
+  provider: elasticbeanstalk
+  region: "us-east-1"
+  app: "multi-docker"
+  env: "MultiDocker-env"
+  bucket_name: "elasticbeanstalk-us-east-1-319556731408"
+  bucket_path: "docker-multi"
+  on:
+    branch: master
+  access_key_id: $AWS_DEPLOYER
+  secret_access_key: 
+    secure: "$AWS_DEPLOYER_SECRET"
+
+notifications:
+  slack: devscreencast:SQHxEakITrmYuilwcRN7QRWX
